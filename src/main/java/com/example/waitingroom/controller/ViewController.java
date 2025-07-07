@@ -47,6 +47,11 @@ public class ViewController {
         return "lobby :: playerList";
     }
 
+    @GetMapping("/game")
+    public String game() {
+        return "game";
+    }
+
     private String generateQrBase64(String text) {
         try {
             BitMatrix matrix = new MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, 200, 200);

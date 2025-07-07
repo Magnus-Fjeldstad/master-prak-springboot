@@ -6,7 +6,40 @@
     <meta http-equiv="refresh" content="5">
 </head>
 <body>
+<script>
+    document.body.addEventListener("htmx:afterOnLoad", function (evt) {
+        if (evt.target.id === "countdown") {
+            const seconds = parseInt(evt.detail.xhr.responseText);
+            const text = document.getElementById("countdownText");
+            if (seconds > 0) {
+                text.textContent = `Spillet starter om ${seconds} sekunder...`;
+            } else if (seconds === 0) {
+                text.textContent = "Starter...";
+            } else {
+                text.textContent = "Venter på flere spillere...";
+            }
+        }
+    });
+</script>
+<div id="redirect-status"
+     hx-get="/api/status"
+     hx-trigger="every 2s"
+     hx-swap="innerHTML"
+     hx-target="#redirect-status">
+</div>
+
+<script>
+    document.body.addEventListener("htmx:afterSwap", function (evt) {
+        if (evt.target.id === "redirect-status") {
+            if (evt.target.innerText.trim() === "true") {
+                window.location.href = "/game";
+            }
+        }
+    });
+</script>
+
 <h1>Lobby</h1>
+<p id="countdownText">Venter på spillstart...</p>
 <div id="players" hx-get="/lobby-fragment" hx-swap="outerHTML" hx-trigger="every 3s">
     <div th:fragment="playerList">
         <ul>
@@ -15,8 +48,9 @@
     </div>
 </div>
 
-<div hx-get="/api/status" hx-trigger="every 2s" hx-swap="none"
-     hx-on::after-request="if(event.detail.xhr.responseText.includes('true')) window.location.href='/game'">
+<div>
+    <div id="countdown" hx-get="/api/countdown" hx-trigger="every 1s" hx-swap="outerHTML"></div>
 </div>
+
 </body>
 </html>

@@ -7,17 +7,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Service
 public class LobbyService {
+
     private final PlayerRepository playerRepo;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> countdownTask;
     private boolean gameStarted = false;
+    private LocalDateTime countdownStartTime;
 
     private static final int MAX_PLAYERS = 4;
     private static final int MIN_PLAYERS = 2;
@@ -28,7 +27,7 @@ public class LobbyService {
     }
 
     public synchronized void addPlayer(String name) {
-        if (playerRepo.count() >= MAX_PLAYERS) return;
+        if (playerRepo.count() >= MAX_PLAYERS || gameStarted) return;
 
         Player p = new Player();
         p.setName(name);
@@ -36,24 +35,25 @@ public class LobbyService {
         playerRepo.save(p);
 
         long count = playerRepo.count();
+
         if (count >= MIN_PLAYERS && countdownTask == null) {
             startCountdown();
         }
 
         if (count >= MAX_PLAYERS && !gameStarted) {
-            startGame(5); // Start within 5s
+            startGame(5); // start tidligere om fullt
         }
     }
 
     private void startCountdown() {
-        countdownTask = scheduler.schedule(() -> startGame(0), 60, TimeUnit.SECONDS);
+        countdownStartTime = LocalDateTime.now().plusSeconds(40);
+        countdownTask = scheduler.schedule(() -> startGame(0), 10, TimeUnit.SECONDS);
     }
 
     private void startGame(int delaySeconds) {
         scheduler.schedule(() -> {
             gameStarted = true;
             System.out.println("GAME STARTED!");
-            playerRepo.deleteAll(); // Reset for demo
             countdownTask = null;
         }, delaySeconds, TimeUnit.SECONDS);
     }
@@ -66,9 +66,18 @@ public class LobbyService {
         return gameStarted;
     }
 
+    public LocalDateTime getCountdownStartTime() {
+        return countdownStartTime;
+    }
+
+    public boolean isCountdownRunning() {
+        return countdownTask != null && !gameStarted;
+    }
+
     public void reset() {
         playerRepo.deleteAll();
         gameStarted = false;
+        countdownStartTime = null;
         if (countdownTask != null) {
             countdownTask.cancel(true);
             countdownTask = null;
