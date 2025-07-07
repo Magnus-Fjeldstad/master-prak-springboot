@@ -30,14 +30,14 @@ public class LobbyApiController {
         return lobbyService.getAllPlayers();
     }
 
-    @GetMapping("/api/status")
+    @GetMapping("/status")
     @ResponseBody
     public String getStatus() {
         System.out.println("Game started? " + lobbyService.isGameStarted());
         return String.valueOf(lobbyService.isGameStarted());
     }
 
-    @GetMapping("/api/countdown")
+    @GetMapping("/countdown")
     @ResponseBody
     public String getCountdownSecondsLeft() {
         if (!lobbyService.isCountdownRunning()) {
@@ -48,7 +48,6 @@ public class LobbyApiController {
         long secondsLeft = java.time.Duration.between(LocalDateTime.now(), target).getSeconds();
         return String.valueOf(Math.max(secondsLeft, 0));
     }
-
 
     @PostMapping("/reset")
     public void reset() {

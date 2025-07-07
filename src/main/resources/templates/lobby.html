@@ -1,56 +1,144 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:hx-on="http://www.w3.org/1999/xhtml">
-<head>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
     <title>Lobby</title>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
-    <meta http-equiv="refresh" content="5">
-</head>
-<body>
-<script>
-    document.body.addEventListener("htmx:afterOnLoad", function (evt) {
-        if (evt.target.id === "countdown") {
-            const seconds = parseInt(evt.detail.xhr.responseText);
-            const text = document.getElementById("countdownText");
-            if (seconds > 0) {
-                text.textContent = `Spillet starter om ${seconds} sekunder...`;
-            } else if (seconds === 0) {
-                text.textContent = "Starter...";
-            } else {
-                text.textContent = "Venter på flere spillere...";
-            }
-        }
-    });
-</script>
-<div id="redirect-status"
-     hx-get="/api/status"
-     hx-trigger="every 2s"
-     hx-swap="innerHTML"
-     hx-target="#redirect-status">
-</div>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #e0e7ff 0%, #f7f7fa 100%);
+        color: #222;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 420px;
+        margin: 48px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px #3a6ea522;
+        padding: 36px 28px 28px 28px;
+        text-align: center;
+      }
+      h1 {
+        margin-top: 0;
+        color: #3a6ea5;
+        font-size: 2.2em;
+        letter-spacing: 1px;
+      }
+      #countdownText {
+        font-size: 1.5em;
+        margin: 18px 0 28px 0;
+        color: #3a6ea5;
+        min-height: 1.5em;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transition: color 0.3s;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px 0;
+      }
+      li {
+        background: #eaf1fb;
+        margin: 8px 0;
+        padding: 10px 0;
+        border-radius: 8px;
+        font-size: 1.15em;
+        box-shadow: 0 1px 4px #3a6ea511;
+        transition: background 0.2s;
+      }
+      .players-title {
+        color: #555;
+        margin-bottom: 10px;
+        font-weight: bold;
+        font-size: 1.1em;
+        letter-spacing: 0.5px;
+      }
+      .waiting {
+        color: #888 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="redirect-status"
+      hx-get="/api/status"
+      hx-trigger="every 2s"
+      hx-swap="innerHTML"
+      style="display: none"
+    ></div>
 
-<script>
-    document.body.addEventListener("htmx:afterSwap", function (evt) {
-        if (evt.target.id === "redirect-status") {
-            if (evt.target.innerText.trim() === "true") {
-                window.location.href = "/game";
-            }
-        }
-    });
-</script>
+    <div class="container">
+      <h1>Lobby</h1>
+      <p id="countdownText" class="waiting">Venter på spillstart...</p>
 
-<h1>Lobby</h1>
-<p id="countdownText">Venter på spillstart...</p>
-<div id="players" hx-get="/lobby-fragment" hx-swap="outerHTML" hx-trigger="every 3s">
-    <div th:fragment="playerList">
-        <ul>
-            <li th:each="player : ${players}" th:text="${player.name}">Player</li>
-        </ul>
+      <div class="players-title">Spillere i lobbyen:</div>
+      <div
+        id="players"
+        hx-get="/lobby-fragment"
+        hx-swap="outerHTML"
+        hx-trigger="every 3s"
+      >
+        <div th:fragment="playerList">
+          <ul>
+            <li th:each="player : ${players}" th:text="${player.name}">
+              Player
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-</div>
 
-<div>
-    <div id="countdown" hx-get="/api/countdown" hx-trigger="every 1s" hx-swap="outerHTML"></div>
-</div>
+    <script>
+      let countdownSeconds = null;
+      let countdownInterval = null;
 
-</body>
+      function pollCountdown() {
+        fetch("/api/countdown")
+          .then((r) => r.text())
+          .then((txt) => {
+            let seconds = parseInt(txt);
+            if (isNaN(seconds)) seconds = -1;
+            countdownSeconds = seconds;
+            updateCountdownText();
+            if (countdownInterval === null) {
+              countdownInterval = setInterval(() => {
+                if (countdownSeconds > 0) {
+                  countdownSeconds--;
+                  updateCountdownText();
+                }
+              }, 1000);
+            }
+          });
+      }
+
+      function updateCountdownText() {
+        const text = document.getElementById("countdownText");
+        if (countdownSeconds > 0) {
+          text.textContent = `Spillet starter om ${countdownSeconds} sekunder...`;
+          text.classList.remove("waiting");
+        } else if (countdownSeconds === 0) {
+          text.textContent = "Starter!";
+          text.classList.remove("waiting");
+        } else {
+          text.textContent = "Venter på flere spillere...";
+          text.classList.add("waiting");
+        }
+      }
+
+      pollCountdown();
+      setInterval(pollCountdown, 5000);
+
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
+        if (evt.target.id === "redirect-status") {
+          if (evt.target.innerText.trim() === "true") {
+            window.location.href = "/game";
+          }
+        }
+      });
+    </script>
+  </body>
 </html>

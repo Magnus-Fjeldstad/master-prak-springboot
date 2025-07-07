@@ -27,7 +27,8 @@ public class LobbyService {
     }
 
     public synchronized void addPlayer(String name) {
-        if (playerRepo.count() >= MAX_PLAYERS || gameStarted) return;
+        if (playerRepo.count() >= MAX_PLAYERS || gameStarted)
+            return;
 
         Player p = new Player();
         p.setName(name);
@@ -46,7 +47,7 @@ public class LobbyService {
     }
 
     private void startCountdown() {
-        countdownStartTime = LocalDateTime.now().plusSeconds(40);
+        countdownStartTime = LocalDateTime.now().plusSeconds(10); // Endret fra 40 til 10
         countdownTask = scheduler.schedule(() -> startGame(0), 10, TimeUnit.SECONDS);
     }
 

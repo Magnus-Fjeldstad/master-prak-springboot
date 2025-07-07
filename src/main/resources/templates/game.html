@@ -1,46 +1,91 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Reaction Time Game</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-        #screen { width: 100%; height: 300px; background: grey; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #f7f7fa 0%, #e0e7ff 100%);
+        text-align: center;
+        margin: 0;
+        min-height: 100vh;
+      }
+      h1 {
+        color: #3a6ea5;
+        margin-top: 48px;
+        font-size: 2.2em;
+        letter-spacing: 1px;
+      }
+      #screen {
+        width: 90%;
+        max-width: 500px;
+        height: 320px;
+        margin: 36px auto 0 auto;
+        background: #bfc9d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px #3a6ea522;
+        cursor: pointer;
+        transition: background 0.3s;
+        user-select: none;
+      }
+      #screen.ready {
+        background: #7be87b;
+        color: #1a3a1a;
+      }
+      #screen.waiting {
+        background: #f7dada;
+        color: #a33;
+      }
+      #screen:active {
+        filter: brightness(0.97);
+      }
+      #result {
+        font-size: 1.3em;
+        color: #3a6ea5;
+        margin-top: 24px;
+        min-height: 1.5em;
+      }
     </style>
-</head>
-<body>
-<h1>Reaction Time</h1>
-<div id="screen">Click to start</div>
-<p id="result"></p>
+  </head>
+  <body>
+    <h1>Reaction Time</h1>
+    <div id="screen">Klikk for å starte</div>
+    <p id="result"></p>
 
-<script>
-    const screen = document.getElementById("screen");
-    const result = document.getElementById("result");
-    let start, timeout;
+    <script>
+      const screen = document.getElementById("screen");
+      const result = document.getElementById("result");
+      let start, timeout;
 
-    screen.addEventListener("click", () => {
+      screen.addEventListener("click", () => {
         if (screen.classList.contains("waiting")) {
-            clearTimeout(timeout);
-            screen.textContent = "Too soon!";
-            screen.style.backgroundColor = "red";
-            screen.className = "";
+          clearTimeout(timeout);
+          screen.textContent = "For tidlig!";
+          screen.style.backgroundColor = "#f7dada";
+          screen.className = "";
         } else if (screen.classList.contains("ready")) {
-            const reactionTime = Date.now() - start;
-            result.textContent = `Your reaction time: ${reactionTime} ms`;
-            screen.textContent = "Click to try again";
-            screen.style.backgroundColor = "grey";
-            screen.className = "";
+          const reactionTime = Date.now() - start;
+          result.textContent = `Din reaksjonstid: ${reactionTime} ms`;
+          screen.textContent = "Klikk for å prøve igjen";
+          screen.style.backgroundColor = "#bfc9d9";
+          screen.className = "";
         } else {
-            screen.textContent = "Wait for green...";
-            screen.style.backgroundColor = "grey";
-            screen.className = "waiting";
-            timeout = setTimeout(() => {
-                screen.textContent = "Click!";
-                screen.style.backgroundColor = "green";
-                screen.className = "ready";
-                start = Date.now();
-            }, Math.random() * 3000 + 2000); // 2–5 sek
+          result.textContent = "";
+          screen.textContent = "Vent på grønt...";
+          screen.style.backgroundColor = "#bfc9d9";
+          screen.className = "waiting";
+          timeout = setTimeout(() => {
+            screen.textContent = "Klikk!";
+            screen.style.backgroundColor = "#7be87b";
+            screen.className = "ready";
+            start = Date.now();
+          }, Math.random() * 3000 + 2000); // 2–5 sek
         }
-    });
-</script>
-</body>
+      });
+    </script>
+  </body>
 </html>

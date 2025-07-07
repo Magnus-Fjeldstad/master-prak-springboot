@@ -1,12 +1,91 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Join</title></head>
-<body>
-<h1>Scan QR or enter your name:</h1>
-<img th:src="${qr}" />
-<form method="post" action="/join">
-    <input type="text" name="name" placeholder="Your name" required />
-    <button type="submit">Join</button>
-</form>
-</body>
+  <head>
+    <title>Join</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #e0e7ff 0%, #f7f7fa 100%);
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px #3a6ea522;
+        padding: 36px 32px 28px 32px;
+        text-align: center;
+        max-width: 350px;
+        width: 100%;
+      }
+      h1 {
+        color: #3a6ea5;
+        font-size: 2em;
+        margin-bottom: 18px;
+        letter-spacing: 1px;
+      }
+      img {
+        margin: 18px 0 24px 0;
+        width: 160px;
+        height: 160px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px #0001;
+        background: #f7f7fa;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 8px;
+      }
+      input[type="text"] {
+        padding: 10px 12px;
+        border: 1.5px solid #bfc9d9;
+        border-radius: 6px;
+        font-size: 1.1em;
+        outline: none;
+        transition: border 0.2s;
+      }
+      input[type="text"]:focus {
+        border-color: #3a6ea5;
+      }
+      button {
+        background: #3a6ea5;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 0;
+        font-size: 1.1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 4px;
+      }
+      button:hover {
+        background: #285080;
+      }
+      @media (max-width: 400px) {
+        .container {
+          padding: 18px 6vw;
+        }
+        img {
+          width: 120px;
+          height: 120px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Bli med i lobbyen</h1>
+      <img th:src="${qr}" alt="QR kode for å bli med" />
+      <form method="post" action="/join">
+        <input type="text" name="name" placeholder="Ditt navn" required />
+        <button type="submit">Bli med</button>
+      </form>
+    </div>
+  </body>
 </html>
