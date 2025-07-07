@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Join</title></head>
+<body>
+<h1>Scan QR or enter your name:</h1>
+<img th:src="${qr}" />
+<form method="post" action="/join">
+    <input type="text" name="name" placeholder="Your name" required />
+    <button type="submit">Join</button>
+</form>
+</body>
+</html>

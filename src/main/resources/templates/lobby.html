@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:hx-on="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Lobby</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <meta http-equiv="refresh" content="5">
+</head>
+<body>
+<h1>Lobby</h1>
+<div id="players" hx-get="/lobby-fragment" hx-swap="outerHTML" hx-trigger="every 3s">
+    <div th:fragment="playerList">
+        <ul>
+            <li th:each="player : ${players}" th:text="${player.name}">Player</li>
+        </ul>
+    </div>
+</div>
+
+<div hx-get="/api/status" hx-trigger="every 2s" hx-swap="none"
+     hx-on::after-request="if(event.detail.xhr.responseText.includes('true')) window.location.href='/game'">
+</div>
+</body>
+</html>
